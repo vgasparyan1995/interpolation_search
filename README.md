@@ -1,0 +1,2 @@
+# interpolation_search
+An algorithm to search an element in a sorted array. In most cases this algorithm can do better than the good old binary search, with O(log log N) notation for performance. However, the worst case may require O(N) time. Note, that this algorithm will work only for random access iterators pointing to arithmetic types. Of course the array must be sorted for this algorithm to work correctly. The worst case for this algorithm is when values grow exponentially.
