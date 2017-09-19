@@ -16,6 +16,10 @@ RandomIt interpolation_search(RandomIt from,
     }
     const auto& first_value = *from;
     const auto& last_value = *(to - 1);
+    if (value < first_value ||
+        value > last_value) {
+        return to;
+    }
     if (first_value == last_value) {
         if (value == first_value) {
             return from;
@@ -29,6 +33,9 @@ RandomIt interpolation_search(RandomIt from,
     std::advance(pivot_iter, pivot_distance);
     if (pivot_iter == from) {
         ++pivot_iter;
+    }
+    if (pivot_iter == to) {
+        --pivot_iter;
     }
     const auto& pivot_value = *pivot_iter;
     RandomIt result;
