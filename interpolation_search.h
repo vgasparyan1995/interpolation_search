@@ -1,55 +1,47 @@
 #pragma once
 
-#include <iterator>
-#include <type_traits>
-
-namespace Search {
-
-template <typename RandomIt>
-RandomIt interpolation_search(RandomIt from,
-			                  RandomIt to,
-			                  typename std::iterator_traits<RandomIt>::value_type const & value, 
-                              typename std::enable_if<std::is_arithmetic<typename std::iterator_traits<RandomIt>::value_type>::value>::type* = nullptr)
+template <typename RandomIt, typename T>
+RandomIt interpolation_lower_bound(RandomIt from, RandomIt to, const T value)
 {
-    if (from == to) {
+    const auto distance = to - from;
+    if (distance == 0) {
+        return from;
+    }
+    const auto left_value = *from;
+    if (value <= left_value) {
+        return from;
+    }
+    const auto right_value = *(to - 1);
+    if (value > right_value) {
         return to;
     }
-    const auto& first_value = *from;
-    const auto& last_value = *(to - 1);
-    if (value < first_value ||
-        value > last_value) {
-        return to;
+    const auto pivot_iter = from + (distance - 1) * (value - left_value) / (right_value - left_value);
+    const auto pivot_value = *pivot_iter;
+    if (pivot_value < value) {
+        return interpolation_lower_bound(pivot_iter + 1, to, value);
     }
-    if (first_value == last_value) {
-        if (value == first_value) {
-            return from;
-        } else {
-            return to;
-        }
-    }
-    const auto length = std::distance(from, to);
-    auto pivot_distance = length * (value - first_value) / (last_value - first_value);
-    auto pivot_iter = from;
-    std::advance(pivot_iter, pivot_distance);
-    if (pivot_iter == from) {
-        ++pivot_iter;
-    }
-    if (pivot_iter == to) {
-        --pivot_iter;
-    }
-    const auto& pivot_value = *pivot_iter;
-    RandomIt result;
-    if (pivot_value == value) {
-        result = pivot_iter;
-    } else if (pivot_value < value) {
-        result = interpolation_search(pivot_iter, to, value);
-    } else /*if (tmpIterValue > value)*/ {
-        result = interpolation_search(from, pivot_iter, value);
-        if (result == pivot_iter) {
-            result = to;
-        }
-    }
-    return result;
+    return interpolation_lower_bound(from, pivot_iter, value);
 }
 
-} // namespace Search
+template <typename RandomIt, typename T>
+RandomIt interpolation_upper_bound(RandomIt from, RandomIt to, const T value)
+{
+    const auto distance = to - from;
+    if (distance == 0) {
+        return from;
+    }
+    const auto left_value = *from;
+    if (value < left_value) {
+        return from;
+    }
+    const auto right_value = *(to - 1);
+    if (value >= right_value) {
+        return to;
+    }
+    const auto pivot_iter = from + (distance - 1) * (value - left_value) / (right_value - left_value);
+    const auto pivot_value = *pivot_iter;
+    if (pivot_value <= value) {
+        return interpolation_upper_bound(pivot_iter + 1, to, value);
+    }
+    return interpolation_upper_bound(from, pivot_iter, value);
+}
